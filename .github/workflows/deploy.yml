@@ -50,7 +50,7 @@ jobs:
         run: |
           docker push $AZURE_REGISTRY/$IMAGE_NAME:latest
 
-      # Step 7: Instalar o humctl CLI (usando o método recomendado pela documentação)
+      # Step 7: Instalar o humctl CLI
       - name: Install humctl
         run: |
           echo "Baixando humctl..."
@@ -58,7 +58,7 @@ jobs:
           tar xvzf cli_0.33.0_linux_amd64.tar.gz
           sudo install -o root -g root -m 0755 humctl /usr/local/bin/humctl
           rm cli_0.33.0_linux_amd64.tar.gz README.md
-          humctl --version
+          humctl version
 
       # Step 8: Login no Humanitec usando o token
       - name: Login to Humanitec
