@@ -21,12 +21,21 @@ jobs:
         run: |
           pip install -r src/requirements.txt
 
-      - name: Install humctl
-        run: |
-          curl -LO https://github.com/humanitec/cli/releases/latest/download/humctl-linux-amd64
-          chmod +x humctl-linux-amd64
-          sudo mv humctl-linux-amd64 /usr/local/bin/humctl
-          humctl --version
+          - name: Install humctl
+          run: |
+            echo "Baixando humctl..."
+            curl -L -o humctl-linux-amd64 -w "%{http_code}" https://github.com/humanitec/cli/releases/latest/download/humctl-linux-amd64
+            # Verifica se o download foi bem sucedido (código HTTP 200)
+            if [ "$(file humctl-linux-amd64 | grep 'ELF')" ]; then
+              echo "Download bem-sucedido."
+              chmod +x humctl-linux-amd64
+              sudo mv humctl-linux-amd64 /usr/local/bin/humctl
+              humctl --version
+            else
+              echo "Falha ao baixar o humctl. Verifique a URL."
+              cat humctl-linux-amd64
+              exit 1
+            fi
 
       - name: Login to Humanitec
         env:
