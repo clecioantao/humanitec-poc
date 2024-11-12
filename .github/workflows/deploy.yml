@@ -19,9 +19,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r src/requirements.txt
 
-      # Passo para instalar o humctl
       - name: Install humctl
         run: |
           curl -LO https://github.com/humanitec/cli/releases/latest/download/humctl-linux-amd64
