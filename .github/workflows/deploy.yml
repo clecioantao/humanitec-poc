@@ -50,11 +50,26 @@ jobs:
         run: |
           docker push $AZURE_REGISTRY/$IMAGE_NAME:latest
 
-      # Step 7: Deploy usando Humanitec com curl
+      # Step 7: Instalar o humctl CLI
+      - name: Install humctl
+        run: |
+          echo "Baixando humctl..."
+          curl -fLO https://github.com/humanitec/cli/releases/latest/download/humctl-linux-amd64.tar.gz
+          tar xvzf humctl-linux-amd64.tar.gz
+          sudo install -o root -g root -m 0755 humctl /usr/local/bin/humctl
+          humctl --version
+
+      # Step 8: Validar o arquivo Score antes do deploy (opcional)
+      - name: Validate Score file
+        run: |
+          echo "Validando o arquivo Score..."
+          humctl score validate --org ${{ secrets.HUMANITEC_ORG }} --app ${{ secrets.HUMANITEC_APP }} --env ${{ secrets.HUMANITEC_ENV }}
+
+      # Step 9: Deploy usando Humanitec com curl
       - name: Deploy using Humanitec API
         run: |
           echo "Iniciando deploy na Humanitec usando curl..."
-          curl -X POST "https://api.humanitec.io/orgs/${{ secrets.HUMANITEC_ORG }}/apps/${{ secrets.HUMANITEC_APP }}/envs/${{ secrets.HUMANITEC_ENV }}/delta" \
+          response=$(curl -s -o response.json -w "%{http_code}" -X POST "https://api.humanitec.io/orgs/${{ secrets.HUMANITEC_ORG }}/apps/${{ secrets.HUMANITEC_APP }}/envs/${{ secrets.HUMANITEC_ENV }}/delta" \
           -H "Authorization: Bearer ${{ secrets.HUMANITEC_API_TOKEN }}" \
           -H "Content-Type: application/json" \
           -d '{
@@ -63,17 +78,22 @@ jobs:
                     "image": "'"$AZURE_REGISTRY/$IMAGE_NAME:latest"'"
                   }
                 }
-              }'
-        env:
-          HUMANITEC_ORG: labcle
-          HUMANITEC_APP: api-flask
-          HUMANITEC_ENV: development
+              }')
 
-      # Step 8: Verificar o status do deploy
+          if [ "$response" -eq 201 ]; then
+            echo "Deploy bem-sucedido!"
+            cat response.json
+          else
+            echo "Erro ao realizar o deploy. Código HTTP: $response"
+            cat response.json
+            exit 1
+          fi
+
+      # Step 10: Verificar o status do deployment (opcional)
       - name: Check Deployment Status
         run: |
-          echo "Verificando status do deploy..."
-          response=$(curl -s -X GET "https://api.humanitec.io/orgs/${{ secrets.HUMANITEC_ORG }}/apps/${{ secrets.HUMANITEC_APP }}/envs/${{ secrets.HUMANITEC_ENV }}/deploys" \
+          echo "Verificando status do deployment..."
+          status=$(curl -s -X GET "https://api.humanitec.io/orgs/${{ secrets.HUMANITEC_ORG }}/apps/${{ secrets.HUMANITEC_APP }}/envs/${{ secrets.HUMANITEC_ENV }}/deploys" \
           -H "Authorization: Bearer ${{ secrets.HUMANITEC_API_TOKEN }}" \
           -H "Content-Type: application/json")
-          echo "Status do deploy: $response"
+          echo "Status do deployment: $status"
