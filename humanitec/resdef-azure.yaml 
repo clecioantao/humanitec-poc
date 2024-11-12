@@ -1,0 +1,17 @@
+apiVersion: entity.humanitec.io/v1b1
+kind: Definition
+metadata:
+  id: azure-flask-cluster
+entity:
+  name: azure-flask-cluster
+  type: k8s-cluster
+  driver_account: azure-testes
+  driver_type: humanitec/k8s-cluster-aks
+  driver_inputs:
+    values:
+      name: humanitec-aks
+      resource_group: humanitec-poc-rg
+      subscription_id: c83e9991-0502-4996-a312-cc8ffb2ed99e
+      server_app_id: 6dae42f8-4368-4678-94ff-3960e28e3630
+  criteria:
+    - app_id: flask-app

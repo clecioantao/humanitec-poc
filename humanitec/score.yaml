@@ -1,0 +1,14 @@
+apiVersion: score.dev/v1b1
+metadata:
+  name: flask-app
+containers:
+  flask-container:
+    image: humanitecacr.azurecr.io/myapp:dfbc4ad745561eae7c85717785af617dc0a7e65a
+    variables:
+      FLASK_ENV: "production"
+      FLASK_APP: "app.py"
+service:
+  ports:
+    www:
+      port: 80
+      targetPort: 5000

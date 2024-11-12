@@ -1,0 +1,15 @@
+apiVersion: score.dev/v1b1
+metadata:
+  name: api-flask
+containers:
+  api-flask:
+    image: humanitecacr.azurecr.io/myapp:dfbc4ad745561eae7c85717785af617dc0a7e65a
+    variables:
+      FLASK_ENV: "production"
+      FLASK_APP: "app.py"
+      PORT: "8080"
+service:
+  ports:
+    http:
+      port: 80         # Porta exposta externamente pelo Kubernetes
+      targetPort: 8080 # Porta usada pela aplicação Flask dentro do container

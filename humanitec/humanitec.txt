@@ -1,0 +1,22 @@
+humctl config set org labcle            # Always lowercase, e.g. "my-org"
+humctl config set app humanitec-poc     # Always lowercase, e.g. "my-app"
+humctl config set env dev # Always lowercase, e.g. "development"
+
+humctl login
+
+cat <<EOF > score.yaml
+apiVersion: score.dev/v1b1
+metadata:
+  name: my-workload
+containers:
+  my-container:
+    image: .
+EOF
+
+export CONTAINER_IMAGE_NAME_AND_TAG=humanitecacr.azurecr.io/myapp:dfb4cad745561eae7c85717785af617dc0a7e65a
+
+humctl score deploy \
+  -f score.yaml \
+  --image ${CONTAINER_IMAGE_NAME_AND_TAG} \
+  --wait \
+  --message "Initial deployment"
