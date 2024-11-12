@@ -24,10 +24,16 @@ jobs:
       - name: Install humctl
         run: |
           curl -LO https://github.com/humanitec/cli/releases/latest/download/humctl-linux-amd64
-          sudo install humctl-linux-amd64 /usr/local/bin/humctl
+          chmod +x humctl-linux-amd64
+          sudo mv humctl-linux-amd64 /usr/local/bin/humctl
+          humctl --version
 
       - name: Login to Humanitec
-        run: humctl login --token ${{ secrets.HUMANITEC_API_TOKEN }}
+        env:
+          HUMANITEC_TOKEN: ${{ secrets.HUMANITEC_API_TOKEN }}
+        run: |
+          echo "Logging into Humanitec..."
+          humctl login --token "$HUMANITEC_TOKEN"
 
       - name: Validate Score file
         run: humctl score validate
