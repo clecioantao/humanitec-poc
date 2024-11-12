@@ -4,8 +4,6 @@ metadata:
 containers:
   api-flask:
     image: humanitecacr.azurecr.io/myapp:latest
-    imagePullSecrets:
-      - name: acr-secret
     variables:
       FLASK_ENV: "production"
       FLASK_APP: "app.py"

@@ -143,3 +143,12 @@ entity:
   criteria:
     - app_id: api-flask
 EOF
+
+---
+
+kubectl create secret docker-registry acr-secret \
+  --docker-server=${{ secrets.ACR_LOGIN_SERVER }} \
+  --docker-username=${{ secrets.ACR_USERNAME }} \
+  --docker-password=${{ secrets.ACR_PASSWORD }} \
+  --docker-email=clecio.antao@gmail.com \
+  -n development-api-flask

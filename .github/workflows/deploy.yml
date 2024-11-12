@@ -53,12 +53,13 @@ jobs:
       # Step 7: Criar o Secret no Kubernetes (se necessário)
       - name: Create Kubernetes Secret
         run: |
+          kubectl delete secret acr-secret -n development-api-flask || true
           kubectl create secret docker-registry acr-secret \
           --docker-server=${{ secrets.ACR_LOGIN_SERVER }} \
           --docker-username=${{ secrets.ACR_USERNAME }} \
           --docker-password=${{ secrets.ACR_PASSWORD }} \
           --docker-email=clecio.antao@gmail.com \
-          -n development-api-flask || true
+          -n development-api-flask
 
       # Step 8: Instalar o humctl CLI
       - name: Install humctl
@@ -89,5 +90,4 @@ jobs:
           HUMANITEC_APP: api-flask
           HUMANITEC_ENV: development
         run: humctl score deploy --wait --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV \
-          --set services.api-flask.containers[0].image="${AZURE_REGISTRY}/${IMAGE_NAME}:latest" \
-          --set services.api-flask.containers[0].imagePullSecrets[0].name="acr-secret"
+          --set services.api-flask.containers[0].image="${AZURE_REGISTRY}/${IMAGE_NAME}:latest"
