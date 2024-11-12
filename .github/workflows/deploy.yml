@@ -11,8 +11,7 @@ jobs:
 
     env:
       AZURE_REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
-      IMAGE_NAME: flask-app
-      TAG: ${{ github.sha }}
+      IMAGE_NAME: myapp
 
     steps:
       # Step 1: Checkout do repositório
@@ -41,20 +40,27 @@ jobs:
           echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ secrets.ACR_LOGIN_SERVER }} \
           --username ${{ secrets.ACR_USERNAME }} --password-stdin
 
-      # Step 5: Build da imagem Docker com tag única (forçando o rebuild)
+      # Step 5: Build da imagem Docker
       - name: Build Docker image
         run: |
-          echo "Building Docker image..."
-          docker build --no-cache -t $AZURE_REGISTRY/$IMAGE_NAME:$TAG -t $AZURE_REGISTRY/$IMAGE_NAME:latest .
+          docker build -t $AZURE_REGISTRY/$IMAGE_NAME:latest .
 
       # Step 6: Push da imagem Docker para o ACR
       - name: Push Docker image to Azure Container Registry
         run: |
-          echo "Pushing Docker image..."
-          docker push $AZURE_REGISTRY/$IMAGE_NAME:$TAG
           docker push $AZURE_REGISTRY/$IMAGE_NAME:latest
 
-      # Step 7: Instalar o humctl CLI
+      # Step 7: Criar o Secret no Kubernetes (se necessário)
+      - name: Create Kubernetes Secret
+        run: |
+          kubectl create secret docker-registry acr-secret \
+          --docker-server=${{ secrets.ACR_LOGIN_SERVER }} \
+          --docker-username=${{ secrets.ACR_USERNAME }} \
+          --docker-password=${{ secrets.ACR_PASSWORD }} \
+          --docker-email=clecio.antao@gmail.com \
+          -n development-api-flask || true
+
+      # Step 8: Instalar o humctl CLI
       - name: Install humctl
         run: |
           echo "Baixando humctl..."
@@ -64,11 +70,11 @@ jobs:
           rm cli_0.33.0_linux_amd64.tar.gz README.md
           humctl version
 
-      # Step 8: Login no Humanitec usando o token
+      # Step 9: Login no Humanitec usando o token
       - name: Login to Humanitec
         run: humctl login --token ${{ secrets.HUMANITEC_API_TOKEN }}
 
-      # Step 9: Validar o arquivo Score antes do deploy
+      # Step 10: Validar o arquivo Score antes do deploy
       - name: Validate Score file
         env:
           HUMANITEC_ORG: labcle
@@ -76,10 +82,12 @@ jobs:
           HUMANITEC_ENV: development
         run: humctl score validate --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV
 
-      # Step 10: Realizar o deploy usando Humanitec
+      # Step 11: Realizar o deploy usando Humanitec
       - name: Deploy using Humanitec
         env:
           HUMANITEC_ORG: labcle
           HUMANITEC_APP: api-flask
           HUMANITEC_ENV: development
-        run: humctl score deploy --wait --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV
+        run: humctl score deploy --wait --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV \
+          --set services.api-flask.containers[0].image="${AZURE_REGISTRY}/${IMAGE_NAME}:latest" \
+          --set services.api-flask.containers[0].imagePullSecrets[0].name="acr-secret"
