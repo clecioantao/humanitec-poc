@@ -50,25 +50,23 @@ jobs:
         run: |
           docker push $AZURE_REGISTRY/$IMAGE_NAME:latest
 
-      # Step 7: Instalar `humctl`
+      # Step 7: Instalar o humctl CLI (Método que estava funcionando)
       - name: Install humctl
         run: |
-          curl -fLO https://github.com/humanitec/cli/releases/latest/download/humctl-linux-amd64
-          chmod +x humctl-linux-amd64
-          sudo mv humctl-linux-amd64 /usr/local/bin/humctl
-          humctl --version
+          echo "Baixando humctl..."
+          curl -fLO https://github.com/humanitec/cli/releases/download/v0.33.0/cli_0.33.0_linux_amd64.tar.gz
+          tar xvzf cli_0.33.0_linux_amd64.tar.gz
+          sudo install -o root -g root -m 0755 humctl /usr/local/bin/humctl
+          rm cli_0.33.0_linux_amd64.tar.gz README.md
+          humctl version
 
-      # Step 8: Login no Humanitec usando o token
-      - name: Login to Humanitec
-        run: |
-          humctl login --token ${{ secrets.HUMANITEC_API_TOKEN }}
-
-      # Step 9: Validar o arquivo Score antes do deploy
+      # Step 8: Validar o arquivo Score antes do deploy (opcional)
       - name: Validate Score file
         run: |
+          echo "Validando o arquivo Score..."
           humctl score validate --org ${{ secrets.HUMANITEC_ORG }} --app ${{ secrets.HUMANITEC_APP }} --env ${{ secrets.HUMANITEC_ENV }}
 
-      # Step 10: Realizar o deploy usando `curl`
+      # Step 9: Deploy usando Humanitec com curl
       - name: Deploy using Humanitec API
         run: |
           echo "Iniciando deploy na Humanitec usando curl..."
@@ -91,3 +89,12 @@ jobs:
             cat response.json
             exit 1
           fi
+
+      # Step 10: Verificar o status do deployment (opcional)
+      - name: Check Deployment Status
+        run: |
+          echo "Verificando status do deployment..."
+          status=$(curl -s -X GET "https://api.humanitec.io/orgs/${{ secrets.HUMANITEC_ORG }}/apps/${{ secrets.HUMANITEC_APP }}/envs/${{ secrets.HUMANITEC_ENV }}/deploys" \
+          -H "Authorization: Bearer ${{ secrets.HUMANITEC_API_TOKEN }}" \
+          -H "Content-Type: application/json")
+          echo "Status do deployment: $status"
