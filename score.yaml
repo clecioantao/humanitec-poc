@@ -3,7 +3,7 @@ metadata:
   name: api-flask
 containers:
   api-flask:
-    image: humanitecacr.azurecr.io/myapp:dfbc4ad745561eae7c85717785af617dc0a7e65a
+    image: humanitecacr.azurecr.io/myapp:latest
     variables:
       FLASK_ENV: "production"
       FLASK_APP: "app.py"
