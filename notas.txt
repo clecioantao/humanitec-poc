@@ -1,0 +1,27 @@
+token humanitec
+AKnn5iRHx4wnJdo0kB-R_1QP5ytLuWfS6_9BA3v1ymkC
+
+curl -X GET https://api.humanitec.io/v2/applications \
+-H "Authorization: Bearer AKnn5iRHx4wnJdo0kB-R_1QP5ytLuWfS6_9BA3v1ymkC"
+
+curl -X GET https://api.humanitec.io/orgs/labcle/applications \
+-H "Authorization: Bearer AKnn5iRHx4wnJdo0kB-R_1QP5ytLuWfS6_9BA3v1ymkC"
+
+Results are AI generated. Please be aware of that when code snippets or concrete solutions approaches are proposed, and double check with sources referenced, or ask our support at support@humanitec.com.
+token curl test
+To test your Humanitec API token using curl, you can make a simple API request to retrieve information about your organizations. Here's an example command:
+
+curl -H "Authorization: Bearer ${HUMANITEC_TOKEN}" https://api.humanitec.io/orgs
+This command will use your Humanitec API token to authenticate and retrieve a list of organizations you have access to. Make sure to replace ${HUMANITEC_TOKEN} with your actual Humanitec API token.
+If the token is valid, you should receive a JSON response with information about your organizations. If the token is invalid or expired, you'll receive an error message.
+This method of testing your token is mentioned in the API References documentation.
+Remember to keep your API token secure and never share it publicly.
+
+Verificar conexao
+ curl -H "Authorization: Bearer AKnn5iRHx4wnJdo0kB-R_1QP5ytLuWfS6_9BA3v1ymkC" https://api.humanitec.io/orgs
+
+ az aks get-credentials --resource-group humanitec-poc-rg --name humanitec-aks
+
+  curl -H "Authorization: Bearer AKnn5iRHx4wnJdo0kB-R_1QP5ytLuWfS6_9BA3v1ymkC" https://api.humanitec.io/orgs/labcle/apps
+
+

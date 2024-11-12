@@ -35,6 +35,6 @@ jobs:
         env:
           HUMANITEC_API_TOKEN: ${{ secrets.HUMANITEC_API_TOKEN }}
         run: |
-          curl -X POST https://api.humanitec.io/v2/applications/humanitec-poc/deploys \
-          -H "Authorization: Bearer ${{ env.HUMANITEC_API_TOKEN }}" \
+          curl -X POST https://api.humanitec.io/orgs/labcle/apps/humanitec-poc/envs/dev/deploys \
+          -H "Authorization: Bearer ${{ secrets.HUMANITEC_API_TOKEN }}" \
           -d '{"module": "myapp", "image": "'"${{ secrets.ACR_LOGIN_SERVER }}/myapp:${{ github.sha }}"'"}'
