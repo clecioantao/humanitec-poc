@@ -22,6 +22,18 @@ Verificar conexao
 
  az aks get-credentials --resource-group humanitec-poc-rg --name humanitec-aks
 
-  curl -H "Authorization: Bearer AKnn5iRHx4wnJdo0kB-R_1QP5ytLuWfS6_9BA3v1ymkC" https://api.humanitec.io/orgs/labcle/apps
+curl -H "Authorization: Bearer AKnn5iRHx4wnJdo0kB-R_1QP5ytLuWfS6_9BA3v1ymkC" https://api.humanitec.io/orgs/labcle/apps
 
 
+$ curl -X POST https://api.humanitec.io/orgs/labcle/apps/humanitec-poc/envs/dev/deploys \
+-H "Authorization: Bearer $HUMANITEC_API_TOKEN" \
+-H "Content-Type: application/json" \
+-d '{
+  "modules": {
+    "myapp": {
+      "image": "'"${ACR_LOGIN_SERVER}/myapp:${GITHUB_SHA}"'"
+    }
+  }
+}'
+
+{"set_id":"","comment":"","id":"18072e400c50c548","env_id":"dev","created_at":"2024-11-12T09:23:54.366649672Z","created_by":"s-2b2f164c-46cc-4620-bff9-1b6c2f5adc38","status":"pending","status_changed_at":"2024-11-12T09:23:54.366649672Z","from_id":"","export_status":"","export_file":""}%        
