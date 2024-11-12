@@ -82,8 +82,4 @@ jobs:
           HUMANITEC_ORG: labcle
           HUMANITEC_APP: api-flask
           HUMANITEC_ENV: development
-          AZURE_REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
-          IMAGE_NAME: flask-app
-        run: |
-          humctl score deploy --wait --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV \
-            --set services.api-flask.containers[0].image="${AZURE_REGISTRY}/${IMAGE_NAME}:latest"
+        run: humctl score deploy --wait --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV
