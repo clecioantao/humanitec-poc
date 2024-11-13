@@ -57,7 +57,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.HUMANITEC_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "values": {
+              "overrides": {
                 "containers.api-flask.image": "'$AZURE_REGISTRY/$IMAGE_NAME:$GIT_COMMIT'"
               },
               "metadata": {
@@ -73,7 +73,7 @@ jobs:
             echo "Erro ao criar Delta: $RESPONSE"
             exit 1
           fi
-      
+          
           echo "Delta criado com ID: $DELTA_ID"
           
           echo "Aplicando Delta ao ambiente..."
@@ -89,6 +89,6 @@ jobs:
             echo "Erro ao aplicar o Delta: $DEPLOY_RESPONSE"
             exit 1
           fi
-      
+          
           echo "Deployment realizado com sucesso: $DEPLOY_RESPONSE"
       
