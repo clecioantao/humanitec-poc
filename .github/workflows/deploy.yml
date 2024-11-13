@@ -34,55 +34,42 @@ jobs:
             exit 1
           fi
 
-      # Step 4: Login no Azure Container Registry (ACR)
+      # Step 4: Login no Azure usando o GitHub Action oficial
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+      # Step 5: Login no Azure Container Registry (ACR)
       - name: Login to Azure Container Registry
         run: |
           echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ secrets.ACR_LOGIN_SERVER }} \
           --username ${{ secrets.ACR_USERNAME }} --password-stdin
 
-      # Step 5: Build da imagem Docker
+      # Step 6: Build da imagem Docker
       - name: Build Docker image
         run: |
           docker build -t $AZURE_REGISTRY/$IMAGE_NAME:latest .
 
-      # Step 6: Push da imagem Docker para o ACR
+      # Step 7: Push da imagem Docker para o ACR
       - name: Push Docker image to Azure Container Registry
         run: |
           docker push $AZURE_REGISTRY/$IMAGE_NAME:latest
 
-      # Step 7: Instalar o humctl CLI
-      - name: Install humctl
-        run: |
-          curl -fLO https://github.com/humanitec/cli/releases/download/v0.33.0/cli_0.33.0_linux_amd64.tar.gz
-          tar xvzf cli_0.33.0_linux_amd64.tar.gz
-          sudo install -o root -g root -m 0755 humctl /usr/local/bin/humctl
-          rm cli_0.33.0_linux_amd64.tar.gz README.md
-          humctl version
-
-      # Step 8: Login no Humanitec usando o token
-      - name: Login to Humanitec
-        run: humctl login --token ${{ secrets.HUMANITEC_API_TOKEN }}
-
-      # Step 9: Validar o arquivo Score antes do deploy
-      - name: Validate Score file
-        env:
-          HUMANITEC_ORG: labcle
-          HUMANITEC_APP: api-flask
-          HUMANITEC_ENV: development
-        run: humctl score validate --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV
-
-      # Step 10: Obter credenciais do AKS
+      # Step 8: Obter credenciais do AKS
       - name: Get AKS credentials
         run: |
           az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
           --name ${{ secrets.AKS_CLUSTER_NAME }} --overwrite-existing
 
-      # Step 11: Garantir que o namespace exista no Kubernetes
+      # Step 9: Garantir que o namespace exista no Kubernetes
       - name: Ensure namespace exists
         run: |
           kubectl get namespace development-api-flask || kubectl create namespace development-api-flask
 
-      # Step 12: Criar secret no Kubernetes para o ACR
+      # Step 10: Criar secret no Kubernetes para o ACR
       - name: Create Kubernetes secret for ACR
         run: |
           kubectl delete secret acr-secret -n development-api-flask || true
@@ -93,7 +80,28 @@ jobs:
             --docker-email=clecio.antao@gmail.com \
             -n development-api-flask
 
-      # Step 13: Realizar o deploy usando Humanitec
+      # Step 11: Instalar o humctl CLI
+      - name: Install humctl
+        run: |
+          curl -fLO https://github.com/humanitec/cli/releases/download/v0.33.0/cli_0.33.0_linux_amd64.tar.gz
+          tar xvzf cli_0.33.0_linux_amd64.tar.gz
+          sudo install -o root -g root -m 0755 humctl /usr/local/bin/humctl
+          rm cli_0.33.0_linux_amd64.tar.gz README.md
+          humctl version
+
+      # Step 12: Login no Humanitec usando o token
+      - name: Login to Humanitec
+        run: humctl login --token ${{ secrets.HUMANITEC_API_TOKEN }}
+
+      # Step 13: Validar o arquivo Score antes do deploy
+      - name: Validate Score file
+        env:
+          HUMANITEC_ORG: labcle
+          HUMANITEC_APP: api-flask
+          HUMANITEC_ENV: development
+        run: humctl score validate --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV
+
+      # Step 14: Realizar o deploy usando Humanitec
       - name: Deploy using Humanitec
         env:
           HUMANITEC_ORG: labcle
