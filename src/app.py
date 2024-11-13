@@ -2,13 +2,12 @@ from datetime import datetime
 from flask import Flask, jsonify
 
 current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-message = f"Hello, Humanitec! Realizando POC de deploy com Humanitec em {current_time}"
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return jsonify({"message": message})
+    return jsonify({"message": "Hello, Humanitec! Realizando POC de deploy com Humanitec - XXXXX "})
 
 @app.route('/health')
 def health():
