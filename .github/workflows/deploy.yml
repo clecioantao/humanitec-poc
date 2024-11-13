@@ -12,6 +12,7 @@ jobs:
     env:
       AZURE_REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
       IMAGE_NAME: flask-app
+      HUMANITEC_API_TOKEN: ${{ secrets.HUMANITEC_API_TOKEN }}
 
     steps:
       # Step 1: Checkout do repositório
@@ -59,9 +60,12 @@ jobs:
           rm cli_0.33.0_linux_amd64.tar.gz README.md
           humctl version
 
-      # Step 8: Login no Humanitec usando o token
-      - name: Login to Humanitec
-        run: humctl login --token ${{ secrets.HUMANITEC_API_TOKEN }}
+      # Step 8: Configurar autenticação usando variável de ambiente
+      - name: Set up Humanitec Token
+        run: |
+          export HUMANITEC_TOKEN=${{ secrets.HUMANITEC_API_TOKEN }}
+          humctl config set token $HUMANITEC_TOKEN
+          humctl config --show
 
       # Step 9: Validar o arquivo Score antes do deploy
       - name: Validate Score file
@@ -82,7 +86,6 @@ jobs:
           humctl score deploy --wait --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV \
             --property containers.api-flask.image=$AZURE_REGISTRY/$IMAGE_NAME:$GIT_COMMIT
 
-      
       # Step 11: Listar imagens no ACR para verificação
       - name: List images in ACR for verification
         run: |
