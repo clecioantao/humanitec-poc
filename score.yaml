@@ -3,7 +3,7 @@ metadata:
   name: api-flask
 containers:
   api-flask:
-    image: humanitecacr.azurecr.io/myapp:latest
+    image: humanitecacr.azurecr.io/flask-app:latest
     variables:
       FLASK_ENV: "production"
       FLASK_APP: "app.py"
@@ -11,5 +11,5 @@ containers:
 service:
   ports:
     http:
-      port: 80         # Porta exposta externamente pelo Kubernetes
-      targetPort: 8080 # Porta usada pela aplicação Flask dentro do container
+      port: 80
+      targetPort: 8080

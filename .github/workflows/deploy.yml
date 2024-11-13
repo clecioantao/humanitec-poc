@@ -79,7 +79,9 @@ jobs:
           HUMANITEC_ENV: development
         run: |
           GIT_COMMIT=$(git rev-parse --short HEAD)
-          humctl score deploy --wait --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV --values image_tag=${GIT_COMMIT}
+          humctl score deploy --wait --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV \
+            --property containers.api-flask.image=$AZURE_REGISTRY/$IMAGE_NAME:$GIT_COMMIT
+
       
       # Step 11: Listar imagens no ACR para verificação
       - name: List images in ACR for verification
