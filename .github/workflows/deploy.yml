@@ -40,17 +40,13 @@ jobs:
           echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ secrets.ACR_LOGIN_SERVER }} \
           --username ${{ secrets.ACR_USERNAME }} --password-stdin
 
-      # Step 5: Build da imagem Docker
-      - name: Build Docker image
+      # Step 5: Configurar kubectl para o AKS
+      - name: Set up AKS credentials
         run: |
-          docker build -t $AZURE_REGISTRY/$IMAGE_NAME:latest .
+          az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+          --name ${{ secrets.AKS_CLUSTER_NAME }} --overwrite-existing
 
-      # Step 6: Push da imagem Docker para o ACR
-      - name: Push Docker image to Azure Container Registry
-        run: |
-          docker push $AZURE_REGISTRY/$IMAGE_NAME:latest
-
-      # Step 7: Criar o Secret no Kubernetes
+      # Step 6: Criar o Secret no Kubernetes
       - name: Create Kubernetes Secret
         run: |
           kubectl delete secret acr-secret -n development-api-flask || true
@@ -61,7 +57,17 @@ jobs:
           --docker-email=clecio.antao@gmail.com \
           -n development-api-flask
 
-      # Step 8: Instalar o humctl CLI
+      # Step 7: Build da imagem Docker
+      - name: Build Docker image
+        run: |
+          docker build -t $AZURE_REGISTRY/$IMAGE_NAME:latest .
+
+      # Step 8: Push da imagem Docker para o ACR
+      - name: Push Docker image to Azure Container Registry
+        run: |
+          docker push $AZURE_REGISTRY/$IMAGE_NAME:latest
+
+      # Step 9: Instalar o humctl CLI
       - name: Install humctl
         run: |
           echo "Baixando humctl..."
@@ -71,11 +77,11 @@ jobs:
           rm cli_0.33.0_linux_amd64.tar.gz README.md
           humctl version
 
-      # Step 9: Login no Humanitec usando o token
+      # Step 10: Login no Humanitec usando o token
       - name: Login to Humanitec
         run: humctl login --token ${{ secrets.HUMANITEC_API_TOKEN }}
 
-      # Step 10: Validar o arquivo Score antes do deploy
+      # Step 11: Validar o arquivo Score antes do deploy
       - name: Validate Score file
         env:
           HUMANITEC_ORG: labcle
@@ -83,7 +89,7 @@ jobs:
           HUMANITEC_ENV: development
         run: humctl score validate --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV
 
-      # Step 11: Realizar o deploy usando Humanitec
+      # Step 12: Realizar o deploy usando Humanitec
       - name: Deploy using Humanitec
         env:
           HUMANITEC_ORG: labcle
