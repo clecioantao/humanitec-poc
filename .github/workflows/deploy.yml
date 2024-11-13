@@ -87,12 +87,12 @@ jobs:
           humctl score deploy --wait --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV \
             --property containers.api-flask.image=$AZURE_REGISTRY/$IMAGE_NAME:$GIT_COMMIT
 
-      # Step 11: Listar imagens no ACR para verificação
-      - name: List images in ACR for verification
-        run: |
-          echo "Autenticando no ACR..."
-          az acr login --name ${{ secrets.ACR_LOGIN_SERVER }}
-          echo "Listing images in ACR for verification..."
-          az acr repository show-tags --name ${{ secrets.ACR_LOGIN_SERVER }} --repository $IMAGE_NAME
-          az acr repository show-manifests --name ${{ secrets.ACR_LOGIN_SERVER }} --repository $IMAGE_NAME
+      # # Step 11: Listar imagens no ACR para verificação
+      # - name: List images in ACR for verification
+      #   run: |
+      #     echo "Autenticando no ACR..."
+      #     az acr login --name ${{ secrets.ACR_LOGIN_SERVER }}
+      #     echo "Listing images in ACR for verification..."
+      #     az acr repository show-tags --name ${{ secrets.ACR_LOGIN_SERVER }} --repository $IMAGE_NAME
+      #     az acr repository show-manifests --name ${{ secrets.ACR_LOGIN_SERVER }} --repository $IMAGE_NAME
 
