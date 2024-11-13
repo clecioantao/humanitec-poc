@@ -11,7 +11,7 @@ jobs:
 
     env:
       AZURE_REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
-      IMAGE_NAME: myapp
+      IMAGE_NAME: flask-app  # Ajustado aqui para o nome correto
 
     steps:
       # Step 1: Checkout do repositório
@@ -28,7 +28,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r src/requirements.txt
-
 
       # Step 4: Login no Azure CLI
       - name: Azure CLI Login
