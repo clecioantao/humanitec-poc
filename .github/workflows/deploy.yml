@@ -49,7 +49,7 @@ jobs:
       # Step 6: Build da imagem Docker
       - name: Build Docker image
         run: |
-          docker build -t $AZURE_REGISTRY/$IMAGE_NAME:latest .
+          docker build --no-cache -t $AZURE_REGISTRY/$IMAGE_NAME:latest .
 
       # Step 7: Push da imagem Docker para o ACR
       - name: Push Docker image to Azure Container Registry
