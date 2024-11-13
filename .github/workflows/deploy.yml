@@ -65,7 +65,8 @@ jobs:
         run: |
           export HUMANITEC_TOKEN=${{ secrets.HUMANITEC_API_TOKEN }}
           humctl config set token $HUMANITEC_TOKEN
-          humctl config --show
+          # Verificar se o token foi configurado corretamente
+          humctl config view
 
       # Step 9: Validar o arquivo Score antes do deploy
       - name: Validate Score file
