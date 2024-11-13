@@ -92,3 +92,9 @@ jobs:
           HUMANITEC_APP: api-flask
           HUMANITEC_ENV: development
         run: humctl score deploy --wait --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV
+
+      # Step 13: Forçar a atualização do Deployment no Kubernetes
+      - name: Restart Kubernetes Deployment
+        run: |
+          az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }} --overwrite-existing
+          kubectl rollout restart deployment api-flask -n development-api-flask
