@@ -58,9 +58,11 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{
               "modules": {
-                "containers": {
-                  "api-flask": {
-                    "image": "'$AZURE_REGISTRY/$IMAGE_NAME:$GIT_COMMIT'"
+                "'${{ env.HUMANITEC_APP }}'": {
+                  "containers": {
+                    "api-flask": {
+                      "image": "'$AZURE_REGISTRY/$IMAGE_NAME:$GIT_COMMIT'"
+                    }
                   }
                 }
               },
@@ -68,6 +70,9 @@ jobs:
                 "message": "Deploy via GitHub Actions"
               }
             }')
+      
+          echo "Resposta da criação do Delta:"
+          echo "$RESPONSE"
           
           # Extraindo o Delta ID
           DELTA_ID=$(echo "$RESPONSE" | jq -r '.id')
@@ -88,11 +93,14 @@ jobs:
               "delta_id": "'$DELTA_ID'"
             }')
           
+          echo "Resposta do Deployment:"
+          echo "$DEPLOY_RESPONSE"
+          
           # Verificar se o deployment foi aplicado com sucesso
           if echo "$DEPLOY_RESPONSE" | grep -q "error"; then
             echo "Erro ao aplicar o Delta: $DEPLOY_RESPONSE"
             exit 1
           fi
           
-          echo "Deployment realizado com sucesso: $DEPLOY_RESPONSE"
+          echo "Deployment realizado com sucesso!"
       
