@@ -57,8 +57,14 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.HUMANITEC_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "overrides": {
-                "containers.api-flask.image": "'$AZURE_REGISTRY/$IMAGE_NAME:$GIT_COMMIT'"
+              "modules": {
+                "api-flask": {
+                  "containers": {
+                    "api-flask": {
+                      "image": "'$AZURE_REGISTRY/$IMAGE_NAME:$GIT_COMMIT'"
+                    }
+                  }
+                }
               },
               "metadata": {
                 "message": "Deploy via GitHub Actions"
