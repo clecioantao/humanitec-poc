@@ -27,11 +27,8 @@ jobs:
       # Step 3: Instalar dependências do Python
       - name: Install dependencies
         run: |
-          if [ -f src/requirements.txt ]; then
-            pip install -r src/requirements.txt
-          else
-            echo "requirements.txt not found in src/"
-            exit 1
+          pip install -r src/requirements.txt
+
 
       # Step 4: Login no Azure CLI
       - name: Azure CLI Login
