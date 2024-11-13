@@ -3,8 +3,7 @@ metadata:
   name: api-flask
 containers:
   api-flask:
-    image: humanitecacr.azurecr.io/flask-app:latest
-    pullPolicy: Always  # Força o Kubernetes a sempre baixar a nova imagem
+    image: humanitecacr.azurecr.io/myapp:latest
     variables:
       FLASK_ENV: "production"
       FLASK_APP: "app.py"
