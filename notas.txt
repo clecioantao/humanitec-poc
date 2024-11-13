@@ -1,6 +1,13 @@
 token humanitec
 AKnn5iRHx4wnJdo0kB-R_1QP5ytLuWfS6_9BA3v1ymkC
 
+$ env | grep ARM
+ARM_CLIENT_ID=ff920540-85ea-4c11-ae85-e2d6ecd18daf
+ARM_CLIENT_SECRET=kpO8Q~PqMWaN1SK.MByDHt1phbbGEJv9xdPB9brl
+ARM_TENANT_ID=8cf7ff0a-ef1e-4377-926f-cf7a4d7206a9
+ARM_SUBSCRIPTION_ID=c83e9991-0502-4996-a312-cc8ffb2ed99e
+
+
 curl -X GET https://api.humanitec.io/v2/applications \
 -H "Authorization: Bearer AKnn5iRHx4wnJdo0kB-R_1QP5ytLuWfS6_9BA3v1ymkC"
 
