@@ -58,11 +58,9 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{
               "modules": {
-                "api-flask": {
-                  "containers": {
-                    "api-flask": {
-                      "image": "'$AZURE_REGISTRY/$IMAGE_NAME:$GIT_COMMIT'"
-                    }
+                "containers": {
+                  "api-flask": {
+                    "image": "'$AZURE_REGISTRY/$IMAGE_NAME:$GIT_COMMIT'"
                   }
                 }
               },
