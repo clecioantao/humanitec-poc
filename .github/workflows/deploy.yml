@@ -12,6 +12,7 @@ jobs:
     env:
       AZURE_REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
       IMAGE_NAME: flask-app
+      HUMANITEC_API_TOKEN: ${{ secrets.HUMANITEC_API_TOKEN }}
 
     steps:
       # Step 1: Checkout do repositório
@@ -26,8 +27,7 @@ jobs:
 
       # Step 3: Instalar dependências do Python
       - name: Install dependencies
-        run: |
-          pip install -r src/requirements.txt
+        run: pip install -r src/requirements.txt
 
       # Step 4: Login no Azure Container Registry (ACR)
       - name: Login to Azure Container Registry
@@ -35,57 +35,41 @@ jobs:
           echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ secrets.ACR_LOGIN_SERVER }} \
           --username ${{ secrets.ACR_USERNAME }} --password-stdin
 
-      # Step 5: Build da imagem Docker com tag única
+      # Step 5: Build da imagem Docker
       - name: Build Docker image
-        run: |
-          GIT_COMMIT=$(git rev-parse --short HEAD)
-          docker build --no-cache -t $AZURE_REGISTRY/$IMAGE_NAME:$GIT_COMMIT .
-          docker tag $AZURE_REGISTRY/$IMAGE_NAME:$GIT_COMMIT $AZURE_REGISTRY/$IMAGE_NAME:latest
+        run: docker build -t $AZURE_REGISTRY/$IMAGE_NAME:latest .
 
       # Step 6: Push da imagem Docker para o ACR
       - name: Push Docker image to Azure Container Registry
-        run: |
-          GIT_COMMIT=$(git rev-parse --short HEAD)
-          docker push $AZURE_REGISTRY/$IMAGE_NAME:$GIT_COMMIT
-          docker push $AZURE_REGISTRY/$IMAGE_NAME:latest
+        run: docker push $AZURE_REGISTRY/$IMAGE_NAME:latest
 
-      # Step 7: Instalar o humctl CLI
+      # Step 7: Instalar o humctl CLI mais recente
       - name: Install humctl
         run: |
-          echo "Baixando humctl..."
-          curl -fLO https://github.com/humanitec/cli/releases/download/v0.33.0/cli_0.33.0_linux_amd64.tar.gz
-          tar xvzf cli_0.33.0_linux_amd64.tar.gz
-          sudo install -o root -g root -m 0755 humctl /usr/local/bin/humctl
-          rm cli_0.33.0_linux_amd64.tar.gz README.md
+          curl -fLO https://github.com/humanitec/cli/releases/latest/download/humctl-linux-amd64
+          chmod +x humctl-linux-amd64
+          sudo mv humctl-linux-amd64 /usr/local/bin/humctl
           humctl version
+
+      # Step 7.1: Limpar tokens cacheados
+      - name: Clear cached humctl credentials
+        run: humctl logout || true
 
       # Step 8: Login no Humanitec usando o token
       - name: Login to Humanitec
         run: humctl login --token ${{ secrets.HUMANITEC_API_TOKEN }}
 
+      # Step 8.1: Verificar login
+      - name: Verify Humanitec login
+        run: humctl config --show
+
       # Step 9: Validar o arquivo Score antes do deploy
       - name: Validate Score file
-        env:
-          HUMANITEC_ORG: labcle
-          HUMANITEC_APP: api-flask
-          HUMANITEC_ENV: development
-        run: humctl score validate --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV
+        run: humctl score validate --org labcle --app api-flask --env development
 
       # Step 10: Realizar o deploy usando Humanitec
       - name: Deploy using Humanitec
-        env:
-          HUMANITEC_ORG: labcle
-          HUMANITEC_APP: api-flask
-          HUMANITEC_ENV: development
         run: |
           GIT_COMMIT=$(git rev-parse --short HEAD)
-          humctl score deploy --wait --org $HUMANITEC_ORG --app $HUMANITEC_APP --env $HUMANITEC_ENV \
+          humctl score deploy --wait --org labcle --app api-flask --env development \
             --property containers.api-flask.image=$AZURE_REGISTRY/$IMAGE_NAME:$GIT_COMMIT
-
-      
-      # Step 11: Listar imagens no ACR para verificação
-      - name: List images in ACR for verification
-        run: |
-          echo "Listing images in ACR for verification..."
-          az acr repository show-tags --name ${{ secrets.ACR_LOGIN_SERVER }} --repository $IMAGE_NAME
-          az acr repository show-manifests --name ${{ secrets.ACR_LOGIN_SERVER }} --repository $IMAGE_NAME
