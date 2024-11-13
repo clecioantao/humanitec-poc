@@ -6,7 +6,6 @@
 *.seed
 *.backup
 .terraform/
-notas.txt
 
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
